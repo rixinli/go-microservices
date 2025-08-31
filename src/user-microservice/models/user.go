@@ -8,13 +8,13 @@ package models
 import (
 	"errors"
 
-	"../common"
-	"gopkg.in/mgo.v2/bson"
+	"github.com/rixinli/go-microservices/src/user-microservice/common"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // User information
 type User struct {
-	ID       bson.ObjectId `bson:"_id" json:"id" example:"5bbdadf782ebac06a695a8e7"`
+	ID       primitive.ObjectID `bson:"_id" json:"id" example:"5bbdadf782ebac06a695a8e7"`
 	Name     string        `bson:"name" json:"name" example:"raycad"`
 	Password string        `bson:"password" json:"password" example:"raycad"`
 }
@@ -36,3 +36,4 @@ func (a AddUser) Validate() error {
 		return nil
 	}
 }
+

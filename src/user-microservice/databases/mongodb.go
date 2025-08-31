@@ -6,18 +6,21 @@
 package databases
 
 import (
+	"context"
 	"time"
 
-	"../common"
-	"../models"
+	"github.com/rixinli/go-microservices/src/user-microservice/common"
+	"github.com/rixinli/go-microservices/src/user-microservice/models"
 	log "github.com/sirupsen/logrus"
-	mgo "gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // MongoDB manages MongoDB connection
 type MongoDB struct {
-	MgDbSession  *mgo.Session
+	Client  *mongo.Client
 	Databasename string
 }
 
@@ -25,54 +28,62 @@ type MongoDB struct {
 func (db *MongoDB) Init() error {
 	db.Databasename = common.Config.MgDbName
 
-	// DialInfo holds options for establishing a session with a MongoDB cluster.
-	dialInfo := &mgo.DialInfo{
-		Addrs:    []string{common.Config.MgAddrs}, // Get HOST + PORT
-		Timeout:  60 * time.Second,
-		Database: db.Databasename,            // Database name
-		Username: common.Config.MgDbUsername, // Username
-		Password: common.Config.MgDbPassword, // Password
-	}
+	// construct connection URI
+	uri := "mongodb://" + common.Config.MgAddrs;
+	if common.Config.MgDbUsername != "" && common.Config.MgDbPassword != "" {
+        uri = "mongodb://" + common.Config.MgDbUsername + ":" + common.Config.MgDbPassword + "@" + common.Config.MgAddrs
+    }
 
-	// Create a session which maintains a pool of socket connections
-	// to the DB MongoDB database.
-	var err error
-	db.MgDbSession, err = mgo.DialWithInfo(dialInfo)
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	defer cancel()
 
+	clientOpts := options.Client().ApplyURI(uri)
+	client, err := mongo.Connect(ctx, clientOpts)
 	if err != nil {
-		log.Debug("Can't connect to mongo, go error: ", err)
-		return err
-	}
+        log.Debug("Can't connect to mongo, go error: ", err)
+        return err
+    }
+	
+	// test connection
+	if err := client.Ping(ctx, nil); err != nil {
+        log.Debug("Mongo ping failed: ", err)
+        return err
+    }
 
-	return db.initData()
+    db.Client = client
+    return db.initData()
 }
 
 // InitData initializes default data
-func (db *MongoDB) initData() error {
-	var err error
-	var count int
+func (db *MongoDB) initData() error{
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+    defer cancel()
 
-	// Check if user collection has at least one document
-	sessionCopy := db.MgDbSession.Copy()
-	defer sessionCopy.Close()
+	// query the the collection for Users
+	collection := db.Client.Database(db.Databasename).Collection(common.ColUsers)
 
-	// Get a collection to execute the query against.
-	collection := sessionCopy.DB(db.Databasename).C(common.ColUsers)
-	count, err = collection.Find(bson.M{}).Count()
+	// get the count of document of users
+	count, err := collection.CountDocuments(ctx, bson.M{})
+    if err != nil {
+        return err
+    }
 
 	if count < 1 {
-		// Create admin/admin account
-		var user models.User
-		user = models.User{bson.NewObjectId(), "admin", "admin"}
-		err = collection.Insert(&user)
+		user := models.User{
+			ID:      primitive.NewObjectID(),
+			Name: "admin",
+			Password: "admin",
+		}
+		_,err = collection.InsertOne(ctx,user);
 	}
-
-	return err
+	return err;
 }
 
 // Close the existing connection
 func (db *MongoDB) Close() {
-	if db.MgDbSession != nil {
-		db.MgDbSession.Close()
+	if db.Client != nil {
+		ctx, cancel := context.WithTimeout(context.Background(),5*time.Second)
+		defer cancel()
+		_ = db.Client.Disconnect(ctx)
 	}
 }

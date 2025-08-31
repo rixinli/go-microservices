@@ -8,13 +8,13 @@ package controllers
 import (
 	"net/http"
 
-	"../common"
-	"../daos"
-	"../models"
-	"../utils"
 	"github.com/gin-gonic/gin"
+	"github.com/rixinli/go-microservices/src/user-microservice/common"
+	"github.com/rixinli/go-microservices/src/user-microservice/daos"
+	"github.com/rixinli/go-microservices/src/user-microservice/models"
+	"github.com/rixinli/go-microservices/src/user-microservice/utils"
 	log "github.com/sirupsen/logrus"
-	"gopkg.in/mgo.v2/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // User manages
@@ -85,7 +85,7 @@ func (u *User) AddUser(ctx *gin.Context) {
 		return
 	}
 
-	user := models.User{bson.NewObjectId(), addUser.Name, addUser.Password}
+	user := models.User{primitive.NewObjectID(), addUser.Name, addUser.Password}
 	err := u.userDAO.Insert(user)
 	if err == nil {
 		ctx.JSON(http.StatusOK, models.Message{"Successfully"})

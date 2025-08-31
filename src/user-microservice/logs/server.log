@@ -37,3 +37,9 @@
 {"level":"debug","msg":"Registered a new user = seedotech, password = raycad","time":"2018-10-01T11:02:33Z"}
 {"level":"debug","msg":"[ERROR]: E11000 duplicate key error collection: go-microservices.users index: _name_ dup key: { : \"seedotech\" }","time":"2018-10-01T11:02:35Z"}
 {"level":"debug","msg":"Registered a new user = raycad, password = raycad","time":"2018-10-01T11:02:48Z"}
+{"level":"debug","msg":"Can't connect to mongo, go error: no reachable servers","time":"2025-08-29T10:05:14-04:00"}
+{"level":"debug","msg":"Can't connect to mongo, go error: no reachable servers","time":"2025-08-29T10:06:21-04:00"}
+{"level":"debug","msg":"Can't connect to mongo, go error: no reachable servers","time":"2025-08-29T10:11:44-04:00"}
+{"level":"debug","msg":"Can't connect to mongo, go error: no reachable servers","time":"2025-08-29T10:14:51-04:00"}
+{"level":"debug","msg":"Can't connect to mongo, go error: no reachable servers","time":"2025-08-31T09:27:43-04:00"}
+{"level":"debug","msg":"Can't connect to mongo, go error: no reachable servers","time":"2025-08-31T09:28:56-04:00"}
