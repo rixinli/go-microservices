@@ -204,7 +204,19 @@ func (u *User) DeleteUserByID(ctx *gin.Context) {
 // @Success 200 {object} models.Message
 // @Router /users [patch]
 func (u *User) UpdateUser(ctx *gin.Context) {
-	var user models.User
+
+	// var updateUser models.UpdateUser
+	// if err := ctx.ShouldBindJSON(&updateUser); err != nil {
+	// 	ctx.JSON(http.StatusInternalServerError, models.Error{common.StatusCodeUnknown, err.Error()})
+	// 	return
+	// }
+
+	// if err := updateUser.Validate(); err != nil {
+	// 	ctx.JSON(http.StatusBadRequest, models.Error{common.StatusCodeUnknown, err.Error()})
+	// 	return
+	// }
+
+	var user models.UpdateUser
 	if err := ctx.ShouldBindJSON(&user); err != nil {
 		ctx.JSON(http.StatusBadRequest, models.Error{common.StatusCodeUnknown, err.Error()})
 		return

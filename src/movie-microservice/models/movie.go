@@ -5,11 +5,11 @@
  */
 package models
 
-import "gopkg.in/mgo.v2/bson"
+import "go.mongodb.org/mongo-driver/bson/primitive"
 
 // Movie information
 type Movie struct {
-	ID          bson.ObjectId `bson:"_id" json:"id"`
+	ID          primitive.ObjectID `bson:"_id" json:"id"`
 	Name        string        `bson:"name" json:"name"`
 	URL         string        `bson:"url" json:"url"`
 	CoverImage  string        `bson:"coverImage" json:"coverImage"`

@@ -6,16 +6,18 @@
 package databases
 
 import (
+	"context"
 	"time"
 
-	"../common"
+	"github.com/rixinli/go-microservices/src/movie-microservice/common"
 	log "github.com/sirupsen/logrus"
-	mgo "gopkg.in/mgo.v2"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // MongoDB manages MongoDB connection
 type MongoDB struct {
-	MgDbSession  *mgo.Session
+	Client *mongo.Client
 	Databasename string
 }
 
@@ -23,31 +25,38 @@ type MongoDB struct {
 func (db *MongoDB) Init() error {
 	db.Databasename = common.Config.MgDbName
 
-	// DialInfo holds options for establishing a session with a MongoDB cluster.
-	dialInfo := &mgo.DialInfo{
-		Addrs:    []string{common.Config.MgAddrs}, // Get HOST + PORT
-		Timeout:  60 * time.Second,
-		Database: db.Databasename,            // Database name
-		Username: common.Config.MgDbUsername, // Username
-		Password: common.Config.MgDbPassword, // Password
-	}
+	// construct connection URI
+	uri := "mongodb://" + common.Config.MgAddrs;
+	if common.Config.MgDbUsername != "" && common.Config.MgDbPassword != "" {
+        uri = "mongodb://" + common.Config.MgDbUsername + ":" + common.Config.MgDbPassword + "@" + common.Config.MgAddrs
+    }
 
-	// Create a session which maintains a pool of socket connections
-	// to the DB MongoDB database.
-	var err error
-	db.MgDbSession, err = mgo.DialWithInfo(dialInfo)
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	defer cancel()
 
+	clientOpts := options.Client().ApplyURI(uri)
+	client, err := mongo.Connect(ctx, clientOpts)
 	if err != nil {
-		log.Debug("Can't connect to mongo, go error: ", err)
-		return err
-	}
+        log.Debug("Can't connect to mongo, go error: ", err)
+        return err
+    }
+	
+	// test connection
+	if err := client.Ping(ctx, nil); err != nil {
+        log.Debug("Mongo ping failed: ", err)
+        return err
+    }
+
+    db.Client = client
 
 	return err
 }
 
 // Close the existing connection
 func (db *MongoDB) Close() {
-	if db.MgDbSession != nil {
-		db.MgDbSession.Close()
+	if db.Client != nil {
+		ctx, cancel := context.WithTimeout(context.Background(),5*time.Second)
+		defer cancel()
+		_ = db.Client.Disconnect(ctx)
 	}
 }

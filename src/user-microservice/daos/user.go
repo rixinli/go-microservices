@@ -149,17 +149,28 @@ func (u *User) Delete(user models.User) error {
 }
 
 // Update modifies an existing User
-func (u *User) Update(user models.User) error {
-	
-
+func (u *User) Update(user models.UpdateUser) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	// Get a collection to execute the query against.
 	collection := databases.Database.Client.
-        Database(databases.Database.Databasename).
-        Collection(common.ColUsers)
+		Database(databases.Database.Databasename).
+		Collection(common.ColUsers)
 
-	_, err := collection.UpdateByID(ctx, user.ID, bson.M{"$set": user})
+	// 构建只包含非零值字段的更新文档
+	update := bson.M{}
+	if user.Name != "" {
+		update["name"] = user.Name
+	}
+	if user.Password != "" {
+		update["password"] = user.Password
+	}
+	// 根据你的 models.UpdateUser 结构体，继续添加其他字段判断
+
+	if len(update) == 0 {
+		return errors.New("no fields to update")
+	}
+
+	_, err := collection.UpdateByID(ctx, user.ID, bson.M{"$set": update})
 	return err
 }

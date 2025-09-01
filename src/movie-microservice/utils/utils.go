@@ -9,9 +9,9 @@ import (
 	"errors"
 	"time"
 
-	"../common"
 	jwt_lib "github.com/dgrijalva/jwt-go"
-	"gopkg.in/mgo.v2/bson"
+	"github.com/rixinli/go-microservices/src/movie-microservice/common"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // SdtClaims defines the custom claims
@@ -43,9 +43,9 @@ func (u *Utils) GenerateJWT(name string, role string) (string, error) {
 
 // ValidateObjectID checks the given ID if it's an object id or not
 func (u *Utils) ValidateObjectID(id string) error {
-	if bson.IsObjectIdHex(id) != true {
-		return errors.New(common.ErrNotObjectIDHex)
-	}
-
-	return nil
+	_, err := primitive.ObjectIDFromHex(id)
+    if err != nil {
+        return errors.New(common.ErrNotObjectIDHex)
+    }
+    return nil
 }

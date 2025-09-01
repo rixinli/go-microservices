@@ -18,13 +18,6 @@ type User struct {
 	Name     string        `bson:"name" json:"name" example:"raycad"`
 	Password string        `bson:"password" json:"password" example:"raycad"`
 }
-
-// AddUser information
-type AddUser struct {
-	Name     string `json:"name" example:"User Name"`
-	Password string `json:"password" example:"User Password"`
-}
-
 // Validate user
 func (a AddUser) Validate() error {
 	switch {
@@ -36,4 +29,30 @@ func (a AddUser) Validate() error {
 		return nil
 	}
 }
+
+// AddUser information
+type AddUser struct {
+	Name     string `json:"name" example:"User Name"`
+	Password string `json:"password" example:"User Password"`
+}
+
+type UpdateUser struct {
+	ID       primitive.ObjectID `bson:"_id" json:"id" example:"5bbdadf782ebac06a695a8e7"`
+	Name     string `json:"name,omitempty" example:"User Name"`
+	Password string `json:"password,omitempty" example:"User Password"`
+}
+
+// Validate checks if fields are empty and returns error if so
+func (u UpdateUser) Validate() error {
+	switch {
+	case len(u.Name) == 0:
+		return errors.New(common.ErrNameEmpty)
+	case len(u.Password) == 0:
+		return errors.New(common.ErrPasswordEmpty)
+	default:
+		return nil
+	}
+}
+
+
 

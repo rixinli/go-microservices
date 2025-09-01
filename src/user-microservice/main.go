@@ -58,20 +58,26 @@ func (m *Main) initServer() error {
 	return nil
 }
 
-// @title UserManagement Service API Document
-// @version 1.0
-// @description List APIs of UserManagement Service
-// @termsOfService http://swagger.io/terms/
+// @title           My API
+// @version         1.0
+// @description     This is my sample server.
+// @termsOfService  http://swagger.io/terms/
 
-// @host 107.113.53.47:8808
-// @BasePath /api/v1
+// @contact.name   API Support
+// @contact.url    http://www.swagger.io/support
+// @contact.email  support@swagger.io
+
+// @license.name  Apache 2.0
+// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host      localhost:8808
+// @BasePath  /api/v1
 func main() {
 	m := Main{}
 
 	// Initialize server
 	if err:=m.initServer(); err!= nil {
-		panic(err);
-		return
+		panic(err)
 	}
 
 	defer databases.Database.Close()

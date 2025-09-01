@@ -10,12 +10,12 @@ import (
 	"net/http"
 	"net/url"
 
-	"../common"
-	"../daos"
-	"../models"
 	"github.com/gin-gonic/gin"
+	"github.com/rixinli/go-microservices/src/movie-microservice/common"
+	"github.com/rixinli/go-microservices/src/movie-microservice/daos"
+	"github.com/rixinli/go-microservices/src/movie-microservice/models"
 	log "github.com/sirupsen/logrus"
-	"gopkg.in/mgo.v2/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // Movie manages Movie CRUD
@@ -80,7 +80,7 @@ func (m *Movie) AddMovie(ctx *gin.Context) {
 		return
 	}
 
-	movie.ID = bson.NewObjectId()
+	movie.ID = primitive.NewObjectID()
 	err := m.movieDAO.Insert(movie)
 	if err == nil {
 		ctx.JSON(http.StatusOK, models.Message{"Successfully"})
