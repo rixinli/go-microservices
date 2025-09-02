@@ -1,0 +1,32 @@
+services:
+  mongo:
+    image: mongo:8
+    container_name: mongo
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - app-net
+
+  user-microservice:
+    container_name: user-microservice-1
+    build:
+      context: .
+      dockerfile: src/user-microservice/Dockerfile
+    ports:
+      - "8808:8808"
+    depends_on:
+      - mongo
+    networks:
+      - app-net
+    volumes:
+      - ./src/user-microservice/config:/app/config
+      - ./src/user-microservice/logs:/app/logs
+
+networks:
+  app-net:
+    driver: bridge
+
+volumes:
+  mongo_data:

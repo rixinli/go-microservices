@@ -1,0 +1,27 @@
+# dynamic.toml (动态配置)
+
+[http.routers]
+  [http.routers.usermanagement]
+    rule = "PathPrefix(`/seedotech.usermanagement`)"
+    service = "usermanagement"
+    entryPoints = ["web"]
+
+  [http.routers.moviemanagement]
+    rule = "PathPrefix(`/seedotech.moviemanagement`)"
+    service = "moviemanagement"
+    entryPoints = ["web"]
+
+[http.services]
+  [http.services.usermanagement.loadBalancer]
+    [[http.services.usermanagement.loadBalancer.servers]]
+      url = "http://192.168.1.9:8808"
+    [[http.services.usermanagement.loadBalancer.servers]]
+      url = "http://192.168.1.10:8808"
+
+  [http.services.moviemanagement.loadBalancer]
+    [[http.services.moviemanagement.loadBalancer.servers]]
+      url = "http://192.168.1.9:8809"
+    [[http.services.moviemanagement.loadBalancer.servers]]
+      url = "http://192.168.1.10:8809"
+    [[http.services.moviemanagement.loadBalancer.servers]]
+      url = "http://192.168.1.12:8809"

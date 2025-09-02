@@ -63,7 +63,7 @@ func (m *Main) initServer() error {
 // @description List APIs of MovieManagement Service
 // @termsOfService http://swagger.io/terms/
 
-// @host 107.113.53.47:8809
+// @host localhost:8809
 // @BasePath /api/v1
 func main() {
 	m := Main{}
