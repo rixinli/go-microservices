@@ -10,8 +10,16 @@ RUN go mod download
 # copy src ./src
 COPY src ./src
 
-# compile user-microservice
+# cd /build/src/user-microservice
 WORKDIR /build/src/user-microservice
+
+# install swag CLI
+RUN go install github.com/swaggo/swag/cmd/swag@latest
+ENV PATH=$PATH:/go/bin
+# generate swagger document
+RUN swag init --parseDependency --parseInternal --generalInfo main.go
+
+# compile user-microservice
 RUN CGO_ENABLED=0 GOOS=linux go build -o /out/user-microservice
 
 # ---------- Runtime stage ----------

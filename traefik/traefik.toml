@@ -16,5 +16,11 @@
 [accessLog]
   filePath = "logs/access.log"
 
-[providers.file]
-  filename = "/etc/traefik/dynamic.toml"
+# [providers.file]
+#   filename = "/dynamic.toml"
+#   watch = true
+
+[providers.docker]
+  endpoint = "unix:///var/run/docker.sock"
+  network = "app-net"
+  exposedByDefault = false

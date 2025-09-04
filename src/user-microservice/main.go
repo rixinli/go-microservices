@@ -70,8 +70,8 @@ func (m *Main) initServer() error {
 // @license.name  Apache 2.0
 // @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host      localhost:8808
-// @BasePath  /api/v1
+// @host      localhost:7777
+// @BasePath  /seedotech.usermanagement/api/v1
 func main() {
 	m := Main{}
 

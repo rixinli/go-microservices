@@ -1,4 +1,4 @@
-basePath: /api/v1
+basePath: /seedotech.usermanagement/api/v1
 definitions:
   models.AddUser:
     properties:
@@ -42,7 +42,7 @@ definitions:
         example: raycad
         type: string
     type: object
-host: localhost:8808
+host: localhost:7777
 info:
   contact:
     email: support@swagger.io

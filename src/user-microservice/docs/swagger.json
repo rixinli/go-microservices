@@ -15,8 +15,8 @@
         },
         "version": "1.0"
     },
-    "host": "localhost:8808",
-    "basePath": "/api/v1",
+    "host": "localhost:7777",
+    "basePath": "/seedotech.usermanagement/api/v1",
     "paths": {
         "/admin/auth": {
             "post": {

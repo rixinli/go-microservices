@@ -10,12 +10,14 @@ services:
       - app-net
 
   user-microservice:
-    container_name: user-microservice-1
+    # scale up can't have a given container_name
+    # container_name: user-microservice
     build:
       context: .
       dockerfile: src/user-microservice/Dockerfile
-    ports:
-      - "8808:8808"
+      # 多副本下负载均衡下 不提供端口映射
+    # ports:
+    #   - "8808:8808"
     depends_on:
       - mongo
     networks:
@@ -23,6 +25,54 @@ services:
     volumes:
       - ./src/user-microservice/config:/app/config
       - ./src/user-microservice/logs:/app/logs
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.usermanagement.rule=PathPrefix(`/seedotech.usermanagement`)"
+      - "traefik.http.services.usermanagement.loadbalancer.server.port=8808"
+      # 定义 StripPrefix 中间件
+      - "traefik.http.middlewares.usermanagement-stripprefix.stripprefix.prefixes=/seedotech.usermanagement"
+      - "traefik.http.routers.usermanagement.middlewares=usermanagement-stripprefix"
+
+  movie-microservice:
+    # scale up can't have a given container_name
+    # container_name: movie-microservice
+    build:
+      context: .
+      dockerfile: src/movie-microservice/Dockerfile
+    # 多副本下负载均衡下 不提供端口映射
+    # ports:
+    #   - "8809:8809"
+    depends_on:
+      - mongo
+    networks:
+      - app-net
+    volumes:
+      - ./src/movie-microservice/config:/app/config
+      - ./src/movie-microservice/logs:/app/logs
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.moviemanagement.rule=PathPrefix(`/seedotech.moviemanagement`)"
+      - "traefik.http.services.moviemanagement.loadbalancer.server.port=8808"
+
+  traefik:
+    container_name: traefik
+    image: traefik:latest
+    # 所有请求从traefik进入
+    ports:
+      - "7777:7777"
+      - "8080:8080"
+    depends_on:
+      - user-microservice
+      - movie-microservice
+    networks:
+      - app-net
+    volumes:
+      # 挂载静态配置文件
+      - ./traefik/traefik.toml:/traefik.toml:ro
+      # 挂载动态配置目录
+      - ./traefik/dynamic:/dynamic:ro
+      # 挂载 Docker socket 以便 Traefik 自动发现容器
+      - /var/run/docker.sock:/var/run/docker.sock:ro
 
 networks:
   app-net:
